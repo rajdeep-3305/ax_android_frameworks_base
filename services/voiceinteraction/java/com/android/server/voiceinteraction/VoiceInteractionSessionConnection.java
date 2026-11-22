@@ -680,6 +680,27 @@ final class VoiceInteractionSessionConnection implements ServiceConnection,
                 getTopVisibleActivityInfosLocked();
 
         if (newVisibleActivityInfos == null || newVisibleActivityInfos.isEmpty()) {
+            // No visible activities yet — keyguard dismissal may still be animating.
+            // The home-screen task stays in RESUMED state across the keyguard exit so it
+            // won't fire a new lifecycle event once it becomes visible.  Schedule a retry
+            // so the session receives the initial visible-activity notification once the
+            // transition settles.
+            mHandler.postDelayed(() -> {
+                synchronized (mLock) {
+                    if (!mListeningVisibleActivity || !mShown || mCanceled || mSession == null
+                            || !mVisibleActivityInfoForToken.isEmpty()) {
+                        return;
+                    }
+                    final ArrayMap<IBinder, VisibleActivityInfo> retryInfos =
+                            getTopVisibleActivityInfosLocked();
+                    if (retryInfos == null || retryInfos.isEmpty()) {
+                        return;
+                    }
+                    notifyVisibleActivitiesChangedLocked(retryInfos,
+                            VisibleActivityInfo.TYPE_ACTIVITY_ADDED);
+                    mVisibleActivityInfoForToken.putAll(retryInfos);
+                }
+            }, 3000);
             return;
         }
         notifyVisibleActivitiesChangedLocked(newVisibleActivityInfos,
