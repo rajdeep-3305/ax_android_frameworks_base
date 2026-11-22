@@ -21,6 +21,8 @@ import static android.security.Flags.secureLockDevice;
 import static android.service.dreams.Flags.dismissDreamOnKeyguardDismiss;
 import static android.view.RemoteAnimationTarget.MODE_OPENING;
 import static android.view.WindowManager.TRANSIT_FLAG_KEYGUARD_APPEARING;
+import static android.view.WindowManager.TRANSIT_FLAG_KEYGUARD_OCCLUDING;
+import static android.view.WindowManager.TRANSIT_FLAG_KEYGUARD_UNOCCLUDING;
 import static android.view.WindowManager.TRANSIT_FLAG_KEYGUARD_GOING_AWAY;
 import static android.view.WindowManager.TRANSIT_KEYGUARD_GOING_AWAY;
 import static android.view.WindowManager.TRANSIT_KEYGUARD_OCCLUDE;
@@ -192,12 +194,14 @@ public class KeyguardService extends Service {
                 || (flags & TRANSIT_FLAG_KEYGUARD_GOING_AWAY) != 0) {
             return apps.length == 0 ? TRANSIT_OLD_KEYGUARD_GOING_AWAY_ON_WALLPAPER
                     : TRANSIT_OLD_KEYGUARD_GOING_AWAY;
-        } else if (type == TRANSIT_KEYGUARD_OCCLUDE) {
+        } else if (type == TRANSIT_KEYGUARD_OCCLUDE
+                || (flags & TRANSIT_FLAG_KEYGUARD_OCCLUDING) != 0) {
             boolean isOccludeByDream = apps.length > 0 && apps[0].taskInfo != null
                     && apps[0].taskInfo.topActivityType == WindowConfiguration.ACTIVITY_TYPE_DREAM;
             if (isOccludeByDream) return TRANSIT_OLD_KEYGUARD_OCCLUDE_BY_DREAM;
             return TRANSIT_OLD_KEYGUARD_OCCLUDE;
-        } else if (type == TRANSIT_KEYGUARD_UNOCCLUDE) {
+        } else if (type == TRANSIT_KEYGUARD_UNOCCLUDE
+                || (flags & TRANSIT_FLAG_KEYGUARD_UNOCCLUDING) != 0) {
             return TRANSIT_OLD_KEYGUARD_UNOCCLUDE;
         } else {
             Slog.d(TAG, "Unexpected transit type: " + type);
