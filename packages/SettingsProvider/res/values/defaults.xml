@@ -181,6 +181,9 @@
     <!-- Default for Settings.Global.DEVICE_NAME $1=MODEL-->
     <string name="def_device_name_simple">%1$s</string>
 
+    <!-- Default for Settings.Secure.ALWAYS_ON_VPN_APP. Empty means none. -->
+    <string name="def_always_on_vpn_app" translatable="false"></string>
+
     <!-- Default for Settings.Secure.WAKE_GESTURE_ENABLED -->
     <bool name="def_wake_gesture_enabled">true</bool>
 

@@ -2178,6 +2178,13 @@ class DatabaseHelper extends SQLiteOpenHelper {
             stmt = db.compileStatement("INSERT OR IGNORE INTO secure(name,value)"
                     + " VALUES(?,?);");
 
+            // Seed the product default for Settings.Secure.ALWAYS_ON_VPN_APP.
+            final String alwaysOnVpnPackage =
+                    mContext.getResources().getString(R.string.def_always_on_vpn_app);
+            if (!alwaysOnVpnPackage.isEmpty()) {
+                loadSetting(stmt, Settings.Secure.ALWAYS_ON_VPN_APP, alwaysOnVpnPackage);
+            }
+
             // Don't do this.  The SystemServer will initialize ADB_ENABLED from a
             // persistent system property instead.
             //loadSetting(stmt, Settings.Secure.ADB_ENABLED, 0);
